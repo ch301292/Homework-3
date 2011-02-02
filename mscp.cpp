@@ -1,4 +1,5 @@
 // Alfonso Jiron ID: 994866648, Jasjot Sumal ID 993402197 
+
 /*----------------------------------------------------------------------+
  |                                                                      |
  |              mscp.c - Marcel's Simple Chess Program                  |
@@ -18,6 +19,7 @@
 
 char mscp_c_rcsid[] = "@(#)$Id: mscp.c,v 1.18 2003/12/14 15:12:12 marcelk Exp $";
 
+#include <iostream>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -276,20 +278,26 @@ static void print_board(void)
         int file, rank;
 
         for (rank=RANK_8; rank>=RANK_1; rank--) {
-                printf("%d ", 1+rank);
+				cout << 1+rank;
                 for (file=FILE_A; file<=FILE_H; file++) {
                         putchar(' ');
                         putchar(PIECE2CHAR(board[SQ(file,rank)]));
                 }
                 putchar('\n');
         }
-        printf("   a b c d e f g h\n%d. %s to move. %s%s%s%s ",
+        /*printf("   a b c d e f g h\n%d. %s to move. %s%s%s%s ",
                 1+ply/2, WTM ? "White" : "Black",
                 board[CASTLE] & CASTLE_WHITE_KING ? "K" : "",
                 board[CASTLE] & CASTLE_WHITE_QUEEN ? "Q" : "",
                 board[CASTLE] & CASTLE_BLACK_KING ? "k" : "",
                 board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : ""
-        );
+        );*/
+		
+		cout << "   a b c d e f g h\n" << 1+ply/2 << ". " << WTM ? "White" : "Black" 
+			<< board[CASTLE] & CASTLE_WHITE_KING ? "K" : "" 
+			<< board[CASTLE] & CASTLE_WHITE_QUEEN ? "Q" : "" 
+			<< board[CASTLE] & CASTLE_BLACK_KING ? "k" : "" 
+			<< board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : "";
         if (board[EP]) print_square(board[EP]);
         putchar('\n');
 }
@@ -304,7 +312,8 @@ static int readline(char *line, int size, FILE *fp)
                 c = fgetc(fp);
                 if (c == EOF) {
                         if (!errno) return -1;
-                        printf("error: %s\n", strerror(errno));
+                        //printf("error: %s\n", strerror(errno));
+						cout << "error: " << strerror(errno)) << endl;
                         errno = 0;
                         continue;
                 }
@@ -964,7 +973,8 @@ static void print_move_san(int move)
                  *  pawn moves are a bit special
                  */
                 if (F(fr) != F(to)) {
-                        printf("%cx", FILE2CHAR(F(fr)));
+                        //printf("%cx", FILE2CHAR(F(fr)));
+						cout << FILE2CHAR(F(fr)) << "x";
                 }
                 print_square(to);
                 /*
@@ -1239,7 +1249,8 @@ static void load_book(char *filename)
 
         fp = fopen(filename, "r");
         if (!fp) {
-                printf("no opening book: %s\n", filename);
+                //printf("no opening book: %s\n", filename);
+				cout << "no opening book: " << filename << endl;
                 exit(EXIT_FAILURE);     /* no mercy */
         }
         while (readline(line, sizeof(line), fp) >= 0) {
@@ -1279,8 +1290,9 @@ static int book_move(void)
                 if (hash < BOOK[m].hash) { y=m; } else { x=m; }
         }
         while (BOOK[x].hash == hash) {
-                printf("%s (%d)", seperator, BOOK[x].count);
-                seperator = (char *)",";
+                //printf("%s (%d)", seperator, BOOK[x].count);
+				cout << seperator << "("<< BOOK[x].count << ")";
+				seperator = (char *)",";
                 print_move_san(BOOK[x].move);
                 compute_hash();
 
