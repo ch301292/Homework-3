@@ -1761,7 +1761,13 @@ static int root_search(int maxdepth)
                         break; /* just one move to play */
                 }
 
-                printf(" %5lu %3d %+1.2f ", nodes, depth, best_score / 100.0);
+                // printf(" %5lu %3d %+1.2f ", nodes, depth, best_score / 100.0);
+				cout << " " << nodes << " " << depth << " ";
+				if(best_score > 0)
+					cout << "+"<< best_score/100.0 << endl;
+				else
+					cout << best_score/100.0 << endl;
+			
                 print_move_san(move);
                 puts("");
 
@@ -1787,8 +1793,8 @@ static void cmd_book(char *dummy)
 {
         int move;
 
-        printf("%ld moves in book\n", booksize);
-
+        //printf("%ld moves in book\n", booksize);
+		cout << booksize << " moves in book" << endl;
         move = book_move();
         if (move) {
                 print_move_san(move);
@@ -1815,7 +1821,10 @@ static void cmd_list_moves(char *dummy)
                 putchar('\n');
                 nmoves++;
         }
-        printf("%d move%s\n", nmoves, nmoves==1 ? "" : "s");
+        //printf("%d move%s\n", nmoves, nmoves==1 ? "" : "s");
+		cout << nmoves << "move"<< moves==1 ? "" : "s" << endl;
+	
+	
 }
 
 static void cmd_default(char *s)
@@ -1828,7 +1837,8 @@ static void cmd_default(char *s)
                 hash_stack[ply] = compute_hash();
                 print_board();
         } else {
-                printf("no such move or command: %s\n", s);
+                //printf("no such move or command: %s\n", s);
+				cout << "no such move or command: " << s << endl;
         }
 }
 
@@ -1889,7 +1899,8 @@ static void cmd_set_depth(char *s)
         if (1==sscanf(s, "%*s%d", &maxdepth)) {
                 maxdepth = MAX(1, MIN(maxdepth, 8));
         }
-        printf("maximum search depth is %d plies\n", maxdepth);
+        //printf("maximum search depth is %d plies\n", maxdepth);
+		cout << "maximum search depth is " << madxdepth << "plies" << endl;
 }
 
 static void cmd_new(char *dummy)
@@ -1948,6 +1959,7 @@ static void cmd_help(char *dummy)
         c = mscp_commands;
         do {
                 printf("%-8s - %s\n", c->name ? c->name : "", c->help);
+			cout << c->name ? c->name: "" << " - " << c->help;
         } while (c++->name != NULL);
 }
 
