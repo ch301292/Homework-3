@@ -1,7 +1,7 @@
 // Alfonso Jiron ID: 994866648, Jasjot Sumal ID 993402197 
 
 /*----------------------------------------------------------------------+
- |            jasjot su.                                                |
+ |                                                                      |
  |              mscp.c - Marcel's Simple Chess Program                  |
  |                                                                      |
  +----------------------------------------------------------------------+
@@ -20,17 +20,17 @@
 char mscp_c_rcsid[] = "@(#)$Id: mscp.c,v 1.18 2003/12/14 15:12:12 marcelk Exp $";
 
 #include <iostream>
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
+#include <cctype>
+#include <cerrno>
+#include <climits>
+#include <csignal>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
 
 typedef unsigned char byte;
-#define INF 32000
+const int INF=32000
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 
@@ -60,10 +60,10 @@ static int ply;         /* Number of half-moves made in game and search */
 #define WTM (~ply & 1)  /* White-to-move predicate */
 
 static byte castle[64]; /* Which pieces may participate in castling */
-#define CASTLE_WHITE_KING  1
-#define CASTLE_WHITE_QUEEN 2
-#define CASTLE_BLACK_KING  4
-#define CASTLE_BLACK_QUEEN 8
+const int CASTLE_WHITE_KING   = 1
+const int CASTLE_WHITE_QUEEN  = 2
+const int CASTLE_BLACK_KING   = 4
+const int CASTLE_BLACK_QUEEN  = 8
 
 static int computer[2]; /* Which side is played by the computer */
 static int xboard_mode; /* XBoard protocol, surpresses prompt */
@@ -112,7 +112,7 @@ static unsigned long zobrist[12][64];   /* Hash-key construction */
  *  so I don't want to waste space on a large table. This also makes MSCP
  *  fit well on 8bit machines.
  */
-#define CORE (2048)
+const int CORE = 2048
 static long booksize;                   /* Number of opening book entries */
 
         struct tt {                     /* Transposition table entry */
@@ -183,14 +183,14 @@ struct command {
 };
 
 /* attacks */
-#define ATKB_NORTH              0
-#define ATKB_NORTHEAST          1
-#define ATKB_EAST               2
-#define ATKB_SOUTHEAST          3
-#define ATKB_SOUTH              4
-#define ATKB_SOUTHWEST          5
-#define ATKB_WEST               6
-#define ATKB_NORTHWEST          7
+const int ATKB_NORTH           = 0
+const int ATKB_NORTHEAST       = 1
+const int ATKB_EAST            = 2
+const int ATKB_SOUTHEAST       = 3
+const int ATKB_SOUTH           = 4
+const int ATKB_SOUTHWEST       = 5
+const int ATKB_WEST            = 6
+const int ATKB_NORTHWEST       = 7
 
 #define ATK_NORTH               (1 << ATKB_NORTH)
 #define ATK_NORTHEAST           (1 << ATKB_NORTHEAST)
