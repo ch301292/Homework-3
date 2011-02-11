@@ -1,7 +1,7 @@
 // Alfonso Jiron ID: 994866648, Jasjot Sumal ID 993402197 
 
 /*----------------------------------------------------------------------+
- |            jasjot su.                                                |
+ |																		|
  |              mscp.c - Marcel's Simple Chess Program                  |
  |                                                                      |
  +----------------------------------------------------------------------+
@@ -28,6 +28,8 @@ char mscp_c_rcsid[] = "@(#)$Id: mscp.c,v 1.18 2003/12/14 15:12:12 marcelk Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <iomanip>
+using namespace std;
 
 typedef unsigned char byte;
 #define INF 32000
@@ -293,11 +295,13 @@ static void print_board(void)
                 board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : ""
         );*/
 		
-		cout << "   a b c d e f g h\n" << 1+ply/2 << ". " << WTM ? "White" : "Black" 
-			<< board[CASTLE] & CASTLE_WHITE_KING ? "K" : "" 
-			<< board[CASTLE] & CASTLE_WHITE_QUEEN ? "Q" : "" 
-			<< board[CASTLE] & CASTLE_BLACK_KING ? "k" : "" 
-			<< board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : "";
+			cout << "  a b c d e f g h\n" << (1+ply/2);
+			cout << ". " << (WTM ? "White" : "Black")
+			<< " to move. "
+			<< (board[CASTLE] & CASTLE_WHITE_KING ? "K" : "") 
+			<< (board[CASTLE] & CASTLE_WHITE_QUEEN ? "Q" : "") 
+			<< (board[CASTLE] & CASTLE_BLACK_KING ? "k" : "") 
+			<< (board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : "");
         if (board[EP]) print_square(board[EP]);
         putchar('\n');
 }
@@ -313,7 +317,7 @@ static int readline(char *line, int size, FILE *fp)
                 if (c == EOF) {
                         if (!errno) return -1;
                         //printf("error: %s\n", strerror(errno));
-						cout << "error: " << strerror(errno)) << endl;
+						cout << "error: " << strerror(errno) << endl;
                         errno = 0;
                         continue;
                 }
@@ -974,7 +978,7 @@ static void print_move_san(int move)
                  */
                 if (F(fr) != F(to)) {
                         //printf("%cx", FILE2CHAR(F(fr)));
-						cout << FILE2CHAR(F(fr)) << "x";
+						cout << (char)(FILE2CHAR(F(fr))) << "x";
                 }
                 print_square(to);
                 /*
@@ -1762,11 +1766,12 @@ static int root_search(int maxdepth)
                 }
 
                 // printf(" %5lu %3d %+1.2f ", nodes, depth, best_score / 100.0);
-				cout << " " << nodes << " " << depth << " ";
-				if(best_score > 0)
-					cout << "+"<< best_score/100.0 << endl;
-				else
-					cout << best_score/100.0 << endl;
+				cout << " " << setw(5) << nodes << " " << setw(3) << depth << " ";
+				
+				if (best_score/100.0 >= 0)
+					cout << fixed << setprecision(2) << "+"<< best_score/100.0 << " ";
+				else 
+					cout << fixed << setprecision(2) << best_score/100.0 << " ";
 			
                 print_move_san(move);
                 puts("");
@@ -1822,7 +1827,7 @@ static void cmd_list_moves(char *dummy)
                 nmoves++;
         }
         //printf("%d move%s\n", nmoves, nmoves==1 ? "" : "s");
-		cout << nmoves << "move"<< moves==1 ? "" : "s" << endl;
+		cout << nmoves << " move"<< (nmoves==1 ? "" : "s") << endl;
 	
 	
 }
@@ -1890,8 +1895,11 @@ static void cmd_go(char *dummy)
 static void cmd_test(char *s)
 {
         int d = maxdepth;
-        sscanf(s, "%*s%d", &d);
-        root_search(d);
+        //sscanf(s, "%*s%d", &d);
+		cin >> d;
+		cin.ignore(1);
+	
+		root_search(d);
 }
 
 static void cmd_set_depth(char *s)
@@ -1900,7 +1908,7 @@ static void cmd_set_depth(char *s)
                 maxdepth = MAX(1, MIN(maxdepth, 8));
         }
         //printf("maximum search depth is %d plies\n", maxdepth);
-		cout << "maximum search depth is " << madxdepth << "plies" << endl;
+		cout << "maximum search depth is " << maxdepth << "plies" << endl;
 }
 
 static void cmd_new(char *dummy)
@@ -1958,8 +1966,9 @@ static void cmd_help(char *dummy)
         puts("commands are:");
         c = mscp_commands;
         do {
-                printf("%-8s - %s\n", c->name ? c->name : "", c->help);
-			cout << c->name ? c->name: "" << " - " << c->help;
+            //printf("%-8s - %s\n", c->name ? c->name : "", c->help);
+			cout << left << setw(8) << (c->name ? c->name: "") << " - " 
+				<< c->help << endl;
         } while (c++->name != NULL);
 }
 
@@ -2051,8 +2060,9 @@ int main(void)
                                 move = root_search(maxdepth);
                         }
                         if (!move || ply >= 1000) {
-                                printf("game over: ");
-                                compute_attacks();
+                                //printf("game over: ");
+                                cout << "game over: ";
+								compute_attacks();
                                 if (!move && enemy->attack[companion->king] != 0) {
                                         puts(WTM ? "0-1" : "1-0");
                                 } else {
@@ -2061,8 +2071,9 @@ int main(void)
                                 computer[0] = computer[1] = 0;
                                 break;
                         }
-                        printf("%d. ... ", 1+ply/2);
-                        print_move_long(move);
+                        //printf("%d. ... ", 1+ply/2);
+                        cout << (1+ply/2) << ". ...";
+						print_move_long(move);
                         putc('\n', stdout);
 
                         make_move(move);
