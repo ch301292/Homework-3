@@ -32,8 +32,8 @@ using namespace std;
 
 typedef unsigned char byte;
 const int INF = 32000;
-#define MAX(a,b) ((a)>(b) ? (a) : (b))
-#define MIN(a,b) ((a)<(b) ? (a) : (b))
+inline int MAX(int a, int b) { return((a)>(b) ? (a) : (b)); }
+inline int MIN(int a, int b) { return((a)<(b) ? (a) : (b)); }
 
 #define xisspace(c) isspace((int)(c)) /* Prevent warnings on crappy Solaris */
 #define xisalpha(c) isalpha((int)(c))
@@ -168,20 +168,20 @@ const int DIR_E = (+8);              /* Offset to step one square right (east) *
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H };
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
 
-inline char RANK2CHAR(char r){        ('1'+(r)); }              /* rank to text */
-inline char CHAR2RANK(char c){        ((c)-'1'); }              /* text to rank */
-inline char FILE2CHAR(char f){        ('a'+(f)); }              /* file to text */
-inline char CHAR2FILE(char c){        ((c)-'a'); }              /* text to file */
-inline char PIECE2CHAR(char p){       ("-KQRBNPkqrbnp"[p]); }   /* piece to text */
+inline char RANK2CHAR(char r){ return ('1'+(r)); }              /* rank to text */
+inline char CHAR2RANK(char c){ return ((c)-'1'); }              /* text to rank */
+inline char FILE2CHAR(char f){ return ('a'+(f)); }              /* file to text */
+inline char CHAR2FILE(char c){ return ((c)-'a'); }              /* text to file */
+inline int PIECE2CHAR(int p){ return ("-KQRBNPkqrbnp"[p]); }   /* piece to text */
 
-#define F(square)               ((square) >> 3)         /* file */
-#define R(square)               ((square) & 7)          /* rank */
-#define SQ(f,r)                 (((f) << 3) | (r))      /* compose square */
-#define FLIP(square)            ((square)^7)            /* flip board */
-#define MOVE(fr,to)             (((fr) << 6) | (to))    /* compose move */
-#define FR(move)                (((move) & 07700) >> 6) /* from square */
-#define TO(move)                ((move) & 00077)        /* target square */
-#define SPECIAL                 (1<<12)                 /* for special moves */
+inline int F(int square)        { return ((square) >> 3); }        /* file */
+inline int R(int square)        { return ((square) & 7); }          /* rank */
+inline int SQ(int f, int r)     { return (((f) << 3) | (r)); }      /* compose square */
+inline int FLIP(int square)     { return ((square)^7); }            /* flip board */
+inline int MOVE(int fr, int to) { return (((fr) << 6) | (to)); }    /* compose move */
+inline int FR(int move)         { return (((move) & 07700) >> 6); } /* from square */
+inline int TO(int move)         { return ((move) & 00077); }        /* target square */
+const int SPECIAL =            (1<<12);                 /* for special moves */
 
 struct command {
         char *name;
@@ -1887,7 +1887,9 @@ static void cmd_go(char *dummy)
 static void cmd_test(char *s)
 {
         int d = maxdepth;
-        sscanf(s, "%*s%d", &d);
+        //sscanf(s, "%*s%d", &d);
+        cin >> d;
+	cin.ignore (1);
         root_search(d);
 }
 
