@@ -35,8 +35,8 @@ const int INF = 32000;
 inline int MAX(int a, int b) { return((a)>(b) ? (a) : (b)); }
 inline int MIN(int a, int b) { return((a)<(b) ? (a) : (b)); }
 
-#define xisspace(c) isspace((int)(c)) /* Prevent warnings on crappy Solaris */
-#define xisalpha(c) isalpha((int)(c))
+inline int xisspace(int c) { return isspace((int)(c)); } /* Prevent warnings on crappy Solaris */
+inline int xisalpha(int c) { return isalpha((int)(c)); }
 
 /*----------------------------------------------------------------------+
  |      data structures                                                 |
@@ -58,7 +58,7 @@ enum {                  /* 64 squares */
 static byte board[64+3]; /* Board state */
 
 static int ply;         /* Number of half-moves made in game and search */
-#define WTM (~ply & 1)  /* White-to-move predicate */
+inline int WTM() { return (~ply & 1); }  /* White-to-move predicate */
 
 static byte castle[64]; /* Which pieces may participate in castling */
 const int CASTLE_WHITE_KING   = 1;
@@ -146,11 +146,9 @@ union U {
          bk[CORE];
 } core;
 
-#define TTABLE (core.tt)
-#define BOOK (core.bk)
 
 /*----------------------------------------------------------------------+
- |      chess defines                                                   |
+ |      chess constants                                                 |
  +----------------------------------------------------------------------*/
 
 enum {
@@ -199,20 +197,20 @@ const int ATKB_SOUTHWEST       = 5;
 const int ATKB_WEST            = 6;
 const int ATKB_NORTHWEST       = 7;
 
-#define ATK_NORTH               (1 << ATKB_NORTH)
-#define ATK_NORTHEAST           (1 << ATKB_NORTHEAST)
-#define ATK_EAST                (1 << ATKB_EAST)
-#define ATK_SOUTHEAST           (1 << ATKB_SOUTHEAST)
-#define ATK_SOUTH               (1 << ATKB_SOUTH)
-#define ATK_SOUTHWEST           (1 << ATKB_SOUTHWEST)
-#define ATK_WEST                (1 << ATKB_WEST)
-#define ATK_NORTHWEST           (1 << ATKB_NORTHWEST)
+const int ATK_NORTH            = (1 << ATKB_NORTH);
+const int ATK_NORTHEAST        = (1 << ATKB_NORTHEAST);
+const int ATK_EAST             = (1 << ATKB_EAST);
+const int ATK_SOUTHEAST        = (1 << ATKB_SOUTHEAST);
+const int ATK_SOUTH            = (1 << ATKB_SOUTH);
+const int ATK_SOUTHWEST        = (1 << ATKB_SOUTHWEST);
+const int ATK_WEST             = (1 << ATKB_WEST);
+const int ATK_NORTHWEST        = (1 << ATKB_NORTHWEST);
 
-#define ATK_ORTHOGONAL          ( ATK_NORTH | ATK_SOUTH | \
-                                  ATK_WEST  | ATK_EAST  )
-#define ATK_DIAGONAL            ( ATK_NORTHEAST | ATK_NORTHWEST | \
-                                  ATK_SOUTHEAST | ATK_SOUTHWEST )
-#define ATK_SLIDER              ( ATK_ORTHOGONAL | ATK_DIAGONAL )
+const int ATK_ORTHOGONAL       =  ( ATK_NORTH | ATK_SOUTH | \
+                                  ATK_WEST  | ATK_EAST  );
+const int ATK_DIAGONAL         =  ( ATK_NORTHEAST | ATK_NORTHWEST | \
+                                  ATK_SOUTHEAST | ATK_SOUTHWEST );
+const int ATK_SLIDER           =  ( ATK_ORTHOGONAL | ATK_DIAGONAL );
 
 static signed char king_step[129];      /* Offsets for king moves */
 static signed char knight_jump[129];    /* Offsets for knight jumps */ 
@@ -300,7 +298,7 @@ static void print_board(void)
                 board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : ""
         );*/
 		
-		cout << ("   a b c d e f g h\n") << (1+ply/2) << (". ") << (WTM ? "White" : "Black") 
+		cout << ("   a b c d e f g h\n") << (1+ply/2) << (". ") << (WTM() ? "White" : "Black") 
 			<< (board[CASTLE] & CASTLE_WHITE_KING ? "K" : "") 
 			<< (board[CASTLE] & CASTLE_WHITE_QUEEN ? "Q" : "") 
 			<< (board[CASTLE] & CASTLE_BLACK_KING ? "k" : "") 
@@ -351,7 +349,7 @@ static unsigned long compute_hash(void)
                         hash ^= zobrist[board[sq]-1][sq];
                 }
         }
-        return hash ^ WTM;
+        return hash ^ WTM();
 }
 
 /*----------------------------------------------------------------------+
@@ -417,7 +415,7 @@ static void setup_board(char *fen)
                 case 'q': board[CASTLE] |= CASTLE_BLACK_QUEEN; break;
                 case 'a': case 'b': case 'c': case 'd':
                 case 'e': case 'f': case 'g': case 'h':
-                        board[EP] = SQ(CHAR2FILE(*fen),WTM?RANK_5:RANK_4);
+                        board[EP] = SQ(CHAR2FILE(*fen),WTM()?RANK_5:RANK_4);
                         break;
                 default:
                         break;
@@ -458,8 +456,8 @@ static void compute_attacks(void)
         memset(&white, 0, sizeof white);
         memset(&black, 0, sizeof black);
 
-        companion = WTM ? &white : &black;
-        enemy = WTM ? &black : &white;
+        companion = WTM() ? &white : &black;
+        enemy = WTM() ? &black : &white;
 
         for (sq=0; sq<64; sq++) {
                 pc = board[sq];
@@ -692,7 +690,7 @@ static int push_move(int fr, int to)
         }
 
         /* does the destination square look safe? */
-        if (WTM) {
+        if (WTM()) {
                 if (black.attack[to] != 0) { /* defended */
                         prescore -= prescore_piece_value[board[fr]];
                 }
@@ -752,7 +750,7 @@ static void gen_slides(int fr, byte dirs)
                 do {
                         to += vector;
                         if (board[to] != EMPTY) {
-                                if (PIECE_COLOR(board[to]) != WTM) {
+                                if (PIECE_COLOR(board[to]) != WTM()) {
                                         push_move(fr, to);
                                 }
                                 break;
@@ -790,7 +788,7 @@ static void generate_moves(unsigned treshold)
 
         for (fr=0; fr<64; fr++) {
                 pc = board[fr];
-                if (!pc || PIECE_COLOR(pc) != WTM) continue;
+                if (!pc || PIECE_COLOR(pc) != WTM()) continue;
 
                 /*
                  *  generate moves for this piece
@@ -805,7 +803,7 @@ static void generate_moves(unsigned treshold)
                                 dir &= dirs;
                                 to = fr+king_step[dir];
                                 if (board[to] != EMPTY &&
-                                    PIECE_COLOR(board[to]) == WTM) continue;
+                                    PIECE_COLOR(board[to]) == WTM()) continue;
                                 push_move(fr, to);
                         } while (dirs -= dir);
                         break;
@@ -834,7 +832,7 @@ static void generate_moves(unsigned treshold)
                                 dir &= dirs;
                                 to = fr+knight_jump[dir];
                                 if (board[to] != EMPTY &&
-                                    PIECE_COLOR(board[to]) == WTM) continue;
+                                    PIECE_COLOR(board[to]) == WTM()) continue;
                                 push_move(fr, to);
                         } while (dirs -= dir);
                         break;
@@ -903,25 +901,25 @@ static void generate_moves(unsigned treshold)
          *  generate castling moves
          */
         if (board[CASTLE] && !enemy->attack[companion->king]) {
-                if (WTM && (board[CASTLE] & CASTLE_WHITE_KING) &&
+                if (WTM() && (board[CASTLE] & CASTLE_WHITE_KING) &&
                         !board[F1] && !board[G1] &&
                         !enemy->attack[F1])
                 {
                         push_special_move(E1, G1);
                 }
-                if (WTM && (board[CASTLE] & CASTLE_WHITE_QUEEN) &&
+                if (WTM() && (board[CASTLE] & CASTLE_WHITE_QUEEN) &&
                         !board[D1] && !board[C1] && !board[B1] &&
                         !enemy->attack[D1])
                 {
                         push_special_move(E1, C1);
                 }
-                if (!WTM && (board[CASTLE] & CASTLE_BLACK_KING) &&
+                if (!WTM() && (board[CASTLE] & CASTLE_BLACK_KING) &&
                         !board[F8] && !board[G8] &&
                         !enemy->attack[F8])
                 {
                         push_special_move(E8, G8);
                 }
-                if (!WTM && (board[CASTLE] & CASTLE_BLACK_QUEEN) &&
+                if (!WTM() && (board[CASTLE] & CASTLE_BLACK_QUEEN) &&
                         !board[D8] && !board[C8] && !board[B8] &&
                         !enemy->attack[D8])
                 {
@@ -935,7 +933,7 @@ static void generate_moves(unsigned treshold)
         if (board[EP]) {
                 int ep = board[EP];
 
-                if (WTM) {
+                if (WTM()) {
                         if (F(ep) != FILE_A && board[ep-DIR_E] == WHITE_PAWN) {
                                 if (push_move(ep-DIR_E, ep+DIR_N))
                                         move_sp[-1].move |= SPECIAL;
@@ -1233,12 +1231,12 @@ static void compact_book(void)
 {
         long b = 0, c = 0;
 
-        qsort(BOOK, booksize, sizeof(BOOK[0]), cmp_bk);
+        qsort(core.bk, booksize, sizeof(core.bk[0]), cmp_bk);
         while (b<booksize) {
-                BOOK[c] = BOOK[b];
+                core.bk[c] = core.bk[b];
                 b++;
-                while (b<booksize && !cmp_bk(&BOOK[c], &BOOK[b])) {
-                        BOOK[c].count += BOOK[b].count;
+                while (b<booksize && !cmp_bk(&core.bk[c], &core.bk[b])) {
+                        core.bk[c].count += core.bk[b].count;
                         b++;
                 }
                 c++;
@@ -1268,9 +1266,9 @@ static void load_book(char *filename)
 
                         s += num;
                         if (booksize < CORE) {
-                                BOOK[booksize].hash = compute_hash();
-                                BOOK[booksize].move = move;
-                                BOOK[booksize].count = 1;
+                                core.bk[booksize].hash = compute_hash();
+                                core.bk[booksize].move = move;
+                                core.bk[booksize].count = 1;
                                 booksize++;
                                 if (booksize >= CORE) compact_book();
                         }
@@ -1292,20 +1290,20 @@ static int book_move(void)
         if (!booksize) return 0;
         y = booksize;
         hash = compute_hash();
-        while (y-x > 1) { /* inv: BOOK[x].hash <= hash < BOOK[y].hash */
+        while (y-x > 1) { /* inv: core.bk[x].hash <= hash < core.bk[y].hash */
                 m = (x + y) / 2;
-                if (hash < BOOK[m].hash) { y=m; } else { x=m; }
+                if (hash < core.bk[m].hash) { y=m; } else { x=m; }
         }
-        while (BOOK[x].hash == hash) {
-                //printf("%s (%d)", seperator, BOOK[x].count);
-				cout << seperator << "("<< BOOK[x].count << ")";
+        while (core.bk[x].hash == hash) {
+                //printf("%s (%d)", seperator, core.bk[x].count);
+				cout << seperator << "("<< core.bk[x].count << ")";
 				seperator = (char *)",";
-                print_move_san(BOOK[x].move);
+                print_move_san(core.bk[x].move);
                 compute_hash();
 
-                sum += BOOK[x].count;
-                if (rnd()%sum < BOOK[x].count) {
-                        move = BOOK[x].move;
+                sum += core.bk[x].count;
+                if (rnd()%sum < core.bk[x].count) {
+                        move = core.bk[x].move;
                 }
                 if (!x--) break;
         }
@@ -1339,8 +1337,8 @@ static int pawn_advance[64] = {
         0,  0, 2, 3, 5, 30, 50, 0,
 };
 
-#define DIFF(a,b) ((a)>(b) ? (a)-(b) : (b)-(a))
-#define TAXI(a,b) (DIFF(F(a),F(b)) + DIFF(R(a),R(b)))
+inline int DIFF(int a, int b) { return ((a)>(b) ? (a)-(b) : (b)-(a)); }
+inline int TAXI(int a, int b) { return (DIFF(F(a),F(b)) + DIFF(R(a),R(b))); }
 
 static void compute_piece_square_tables(void)
 {
@@ -1519,7 +1517,7 @@ static int evaluate(void)
         /* some noise to randomize play */
         score += (hash_stack[ply] ^ rnd_seed) % 17 - 8;
 
-        return WTM ? score : -score;
+        return WTM() ? score : -score;
 }
 
 /*----------------------------------------------------------------------+
@@ -1602,7 +1600,7 @@ static int search(int depth, int alpha, int beta)
         /*
          *  check transposition table
          */
-        tt = &TTABLE[ ((hash_stack[ply]>>16) & (CORE-1)) ];
+        tt = &core.tt[ ((hash_stack[ply]>>16) & (CORE-1)) ];
         if (tt->hash == (hash_stack[ply] & 0xffffU)) {
                 if (tt->depth >= depth) {
                         if (tt->flag >= 0) alpha = MAX(alpha, tt->score);
@@ -1880,8 +1878,8 @@ static void cmd_force(char *dummy)
 
 static void cmd_go(char *dummy)
 {
-        computer[!WTM] = 1;
-        computer[WTM] = 0;
+        computer[!WTM()] = 1;
+        computer[WTM()] = 0;
 }
 
 static void cmd_test(char *s)
@@ -1945,7 +1943,7 @@ struct command mscp_commands[] = {
  { (char*)"quit",      cmd_quit,       (char*)"leave chess program"                   },
  { (char*)"xboard",    cmd_xboard,     (char*)"switch to xboard mode"                 },
  { (char*)"fen",       cmd_fen,        (char*)"setup new position"                    },
- { NULL,        cmd_default,   	       (char*)"enter moves in algebraic notation"     },
+ { NULL,               cmd_default,    (char*)"enter moves in algebraic notation"     },
 };
 
 
@@ -2039,7 +2037,7 @@ int main(void)
                 }
                 mscp_commands[cmd].cmd(line);
 
-                while (computer[!WTM]) {
+                while (computer[!WTM()]) {
                         move = book_move();
                         if (!move) {
                                 booksize = 0;
@@ -2051,7 +2049,7 @@ int main(void)
                                 printf("game over: ");
                                 compute_attacks();
                                 if (!move && enemy->attack[companion->king] != 0) {
-                                        puts(WTM ? "0-1" : "1-0");
+                                        puts(WTM() ? "0-1" : "1-0");
                                 } else {
                                         puts("1/2-1/2");
                                 }
