@@ -1,11 +1,7 @@
 // Alfonso Jiron ID: 994866648, Jasjot Sumal ID 993402197 
 
 /*----------------------------------------------------------------------+
-<<<<<<< HEAD
- |																		|
-=======
  |                                                                      |
->>>>>>> upstream/master
  |              mscp.c - Marcel's Simple Chess Program                  |
  |                                                                      |
  +----------------------------------------------------------------------+
@@ -24,18 +20,6 @@
 char mscp_c_rcsid[] = "@(#)$Id: mscp.c,v 1.18 2003/12/14 15:12:12 marcelk Exp $";
 
 #include <iostream>
-<<<<<<< HEAD
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <iomanip>
-using namespace std;
-=======
 #include <cctype>
 #include <cerrno>
 #include <climits>
@@ -44,7 +28,7 @@ using namespace std;
 #include <cstdio>
 #include <cstring>
 #include <ctime>
->>>>>>> upstream/master
+using namespace std;
 
 typedef unsigned char byte;
 const int INF = 32000;
@@ -176,19 +160,19 @@ enum {
         BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
         BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN
 };
-#define PIECE_COLOR(pc) ((pc) < BLACK_KING) /* White or black */
+inline int PIECE_COLOR(int pc){ return((pc) < BLACK_KING); } /* White or black */
 //------------------------------------------------------------------------------------------ERRORS- correct type?
-inline int DIR_N(){return (+1);}              /* Offset to step one square up (north) */
-inline int DIR_E(){return (+8);}              /* Offset to step one square right (east) */
+const int DIR_N = (+1);              /* Offset to step one square up (north) */
+const int DIR_E = (+8);              /* Offset to step one square right (east) */
 
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H };
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
 
-#define RANK2CHAR(r)            ('1'+(r))               /* rank to text */
-#define CHAR2RANK(c)            ((c)-'1')               /* text to rank */
-#define FILE2CHAR(f)            ('a'+(f))               /* file to text */
-#define CHAR2FILE(c)            ((c)-'a')               /* text to file */
-#define PIECE2CHAR(p)           ("-KQRBNPkqrbnp"[p])    /* piece to text */
+inline char RANK2CHAR(char r){        ('1'+(r)); }              /* rank to text */
+inline char CHAR2RANK(char c){        ((c)-'1'); }              /* text to rank */
+inline char FILE2CHAR(char f){        ('a'+(f)); }              /* file to text */
+inline char CHAR2FILE(char c){        ((c)-'a'); }              /* text to file */
+inline char PIECE2CHAR(char p){       ("-KQRBNPkqrbnp"[p]); }   /* piece to text */
 
 #define F(square)               ((square) >> 3)         /* file */
 #define R(square)               ((square) & 7)          /* rank */
@@ -316,9 +300,7 @@ static void print_board(void)
                 board[CASTLE] & CASTLE_BLACK_QUEEN ? "q" : ""
         );*/
 		
-			cout << "  a b c d e f g h\n" << (1+ply/2);
-			cout << ". " << (WTM ? "White" : "Black")
-			<< " to move. "
+		cout << ("   a b c d e f g h\n") << (1+ply/2) << (". ") << (WTM ? "White" : "Black") 
 			<< (board[CASTLE] & CASTLE_WHITE_KING ? "K" : "") 
 			<< (board[CASTLE] & CASTLE_WHITE_QUEEN ? "Q" : "") 
 			<< (board[CASTLE] & CASTLE_BLACK_KING ? "k" : "") 
@@ -557,20 +539,20 @@ static void compute_attacks(void)
                 case WHITE_PAWN:
                         white.pawns[1+F(sq)] += 1;
                         if (F(sq) != FILE_H) {
-                                white.attack[sq + DIR_N() + DIR_E()] += 1;
+                                white.attack[sq + DIR_N + DIR_E] += 1;
                         }
                         if (F(sq) != FILE_A) {
-                                white.attack[sq + DIR_N() - DIR_E()] += 1;
+                                white.attack[sq + DIR_N - DIR_E] += 1;
                         }
                         break;
 
                 case BLACK_PAWN:
                         black.pawns[1+F(sq)] += 1;
                         if (F(sq) != FILE_H) {
-                                black.attack[sq - DIR_N() + DIR_E()] += 1;
+                                black.attack[sq - DIR_N + DIR_E] += 1;
                         }
                         if (F(sq) != FILE_A) {
-                                black.attack[sq - DIR_N() - DIR_E()] += 1;
+                                black.attack[sq - DIR_N - DIR_E] += 1;
                         }
                         break;
                 }
@@ -859,27 +841,27 @@ static void generate_moves(unsigned treshold)
 
                 case WHITE_PAWN:
                         if (F(fr) != FILE_H) {
-                                to = fr + DIR_N() + DIR_E();
+                                to = fr + DIR_N + DIR_E;
                                 if (board[to] >= BLACK_KING) {
                                         push_pawn_move(fr, to);
                                 }
                         }
                         if (F(fr) != FILE_A) {
-                                to = fr + DIR_N() - DIR_E();
+                                to = fr + DIR_N - DIR_E;
                                 if (board[to] >= BLACK_KING) {
                                         push_pawn_move(fr, to);
                                 }
                         }
-                        to = fr + DIR_N();
+                        to = fr + DIR_N;
                         if (board[to] != EMPTY) {
                                 break;
                         }
                         push_pawn_move(fr, to);
                         if (R(fr) == RANK_2) {
-                                to += DIR_N();
+                                to += DIR_N;
                                 if (board[to] == EMPTY) {
                                         if (push_move(fr, to))
-                                        if (black.attack[to-DIR_N()]) {
+                                        if (black.attack[to-DIR_N]) {
                                                 move_sp[-1].move |= SPECIAL;
                                         }
                                 }
@@ -888,27 +870,27 @@ static void generate_moves(unsigned treshold)
 
                 case BLACK_PAWN:
                         if (F(fr) != FILE_H) {
-                                to = fr - DIR_N() + DIR_E();
+                                to = fr - DIR_N + DIR_E;
                                 if (board[to] && board[to] < BLACK_KING) {
                                         push_pawn_move(fr, to);
                                 }
                         }
                         if (F(fr) != FILE_A) {
-                                to = fr - DIR_N() - DIR_E();
+                                to = fr - DIR_N - DIR_E;
                                 if (board[to] && board[to] < BLACK_KING) {
                                         push_pawn_move(fr, to);
                                 }
                         }
-                        to = fr - DIR_N();
+                        to = fr - DIR_N;
                         if (board[to] != EMPTY) {
                                 break;
                         }
                         push_pawn_move(fr, to);
                         if (R(fr) == RANK_7) {
-                                to -= DIR_N();
+                                to -= DIR_N;
                                 if (board[to] == EMPTY) {
                                         if (push_move(fr, to))
-                                        if (white.attack[to+DIR_N()]) {
+                                        if (white.attack[to+DIR_N]) {
                                                 move_sp[-1].move |= SPECIAL;
                                         }
                                 }
@@ -954,21 +936,21 @@ static void generate_moves(unsigned treshold)
                 int ep = board[EP];
 
                 if (WTM) {
-                        if (F(ep) != FILE_A && board[ep-DIR_E()] == WHITE_PAWN) {
-                                if (push_move(ep-DIR_E(), ep+DIR_N()))
+                        if (F(ep) != FILE_A && board[ep-DIR_E] == WHITE_PAWN) {
+                                if (push_move(ep-DIR_E, ep+DIR_N))
                                         move_sp[-1].move |= SPECIAL;
                         }
-                        if (F(ep) != FILE_H && board[ep+DIR_E()] == WHITE_PAWN) {
-                                if (push_move(ep+DIR_E(), ep+DIR_N()))
+                        if (F(ep) != FILE_H && board[ep+DIR_E] == WHITE_PAWN) {
+                                if (push_move(ep+DIR_E, ep+DIR_N))
                                         move_sp[-1].move |= SPECIAL;
                         }
                 } else {
-                        if (F(ep) != FILE_A && board[ep-DIR_E()] == BLACK_PAWN) {
-                                if (push_move(ep-DIR_E(), ep-DIR_N()))
+                        if (F(ep) != FILE_A && board[ep-DIR_E] == BLACK_PAWN) {
+                                if (push_move(ep-DIR_E, ep-DIR_N))
                                         move_sp[-1].move |= SPECIAL;
                         }
-                        if (F(ep) != FILE_H && board[ep+DIR_E()] == BLACK_PAWN) {
-                                if (push_move(ep+DIR_E(), ep-DIR_N()))
+                        if (F(ep) != FILE_H && board[ep+DIR_E] == BLACK_PAWN) {
+                                if (push_move(ep+DIR_E, ep-DIR_N))
                                         move_sp[-1].move |= SPECIAL;
                         }
                 }
@@ -999,7 +981,7 @@ static void print_move_san(int move)
                  */
                 if (F(fr) != F(to)) {
                         //printf("%cx", FILE2CHAR(F(fr)));
-						cout << (char)(FILE2CHAR(F(fr))) << "x";
+						cout << FILE2CHAR(F(fr)) << "x";
                 }
                 print_square(to);
                 /*
@@ -1786,14 +1768,7 @@ static int root_search(int maxdepth)
                         break; /* just one move to play */
                 }
 
-                // printf(" %5lu %3d %+1.2f ", nodes, depth, best_score / 100.0);
-				cout << " " << setw(5) << nodes << " " << setw(3) << depth << " ";
-				
-				if (best_score/100.0 >= 0)
-					cout << fixed << setprecision(2) << "+"<< best_score/100.0 << " ";
-				else 
-					cout << fixed << setprecision(2) << best_score/100.0 << " ";
-			
+                printf(" %5lu %3d %+1.2f ", nodes, depth, best_score / 100.0);
                 print_move_san(move);
                 puts("");
 
@@ -1819,8 +1794,8 @@ static void cmd_book(char *dummy)
 {
         int move;
 
-        //printf("%ld moves in book\n", booksize);
-		cout << booksize << " moves in book" << endl;
+        printf("%ld moves in book\n", booksize);
+
         move = book_move();
         if (move) {
                 print_move_san(move);
@@ -1847,10 +1822,7 @@ static void cmd_list_moves(char *dummy)
                 putchar('\n');
                 nmoves++;
         }
-        //printf("%d move%s\n", nmoves, nmoves==1 ? "" : "s");
-		cout << nmoves << " move"<< (nmoves==1 ? "" : "s") << endl;
-	
-	
+        printf("%d move%s\n", nmoves, nmoves==1 ? "" : "s");
 }
 
 static void cmd_default(char *s)
@@ -1863,8 +1835,7 @@ static void cmd_default(char *s)
                 hash_stack[ply] = compute_hash();
                 print_board();
         } else {
-                //printf("no such move or command: %s\n", s);
-				cout << "no such move or command: " << s << endl;
+                printf("no such move or command: %s\n", s);
         }
 }
 
@@ -1916,11 +1887,8 @@ static void cmd_go(char *dummy)
 static void cmd_test(char *s)
 {
         int d = maxdepth;
-        //sscanf(s, "%*s%d", &d);
-		cin >> d;
-		cin.ignore(1);
-	
-		root_search(d);
+        sscanf(s, "%*s%d", &d);
+        root_search(d);
 }
 
 static void cmd_set_depth(char *s)
@@ -1928,8 +1896,7 @@ static void cmd_set_depth(char *s)
         if (1==sscanf(s, "%*s%d", &maxdepth)) {
                 maxdepth = MAX(1, MIN(maxdepth, 8));
         }
-        //printf("maximum search depth is %d plies\n", maxdepth);
-		cout << "maximum search depth is " << maxdepth << "plies" << endl;
+        printf("maximum search depth is %d plies\n", maxdepth);
 }
 
 static void cmd_new(char *dummy)
@@ -1987,9 +1954,7 @@ static void cmd_help(char *dummy)
         puts("commands are:");
         c = mscp_commands;
         do {
-            //printf("%-8s - %s\n", c->name ? c->name : "", c->help);
-			cout << left << setw(8) << (c->name ? c->name: "") << " - " 
-				<< c->help << endl;
+                printf("%-8s - %s\n", c->name ? c->name : "", c->help);
         } while (c++->name != NULL);
 }
 
@@ -2081,9 +2046,8 @@ int main(void)
                                 move = root_search(maxdepth);
                         }
                         if (!move || ply >= 1000) {
-                                //printf("game over: ");
-                                cout << "game over: ";
-								compute_attacks();
+                                printf("game over: ");
+                                compute_attacks();
                                 if (!move && enemy->attack[companion->king] != 0) {
                                         puts(WTM ? "0-1" : "1-0");
                                 } else {
@@ -2092,9 +2056,8 @@ int main(void)
                                 computer[0] = computer[1] = 0;
                                 break;
                         }
-                        //printf("%d. ... ", 1+ply/2);
-                        cout << (1+ply/2) << ". ...";
-						print_move_long(move);
+                        printf("%d. ... ", 1+ply/2);
+                        print_move_long(move);
                         putc('\n', stdout);
 
                         make_move(move);
